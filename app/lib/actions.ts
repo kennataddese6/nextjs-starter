@@ -46,10 +46,15 @@ export type State = {
     status?: string[];
   };
   message?: string | null;
+  successMessage?: string | null;
 };
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 
-export async function createInvoice(prevState: State, formData: FormData) {
+export async function createInvoice(
+  prevState: State,
+  formData: FormData,
+  userId: string
+) {
   //  If you're working with forms that have many fields, you may want to consider using the entries() method with JavaScript's Object.fromEntries(). For example:
   //const rawFormData = Object.fromEntries(formData.entries())
   const validatedFields = CreateInvoice.safeParse({
@@ -70,10 +75,11 @@ export async function createInvoice(prevState: State, formData: FormData) {
   const date = new Date().toISOString().split("T")[0];
 
   try {
-    await sql`
+    const data = await sql`
       INSERT INTO invoices (customer_id, amount, status, date)
       VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
     `;
+    return { successMessage: "data" };
   } catch (error) {
     return {
       message: "Database Error: Failed to Create Invoice.",

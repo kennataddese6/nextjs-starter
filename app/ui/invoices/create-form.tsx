@@ -11,8 +11,20 @@ import {
 import { Button } from "@/app/ui/button";
 import { createInvoice, State } from "@/app/lib/actions";
 export default function Form({ customers }: { customers: CustomerField[] }) {
-  const initialState: State = { message: null, errors: {} };
-  const [state, formAction] = useActionState(createInvoice, initialState);
+  const initialState: State = { message: null, errors: {}, successMessage: "" };
+  const id = "userId";
+
+  const createInvoiceWithUserId =
+    (userId: string) => (prevState: any, formData: FormData) => {
+      return createInvoice(prevState, formData, userId);
+    };
+  const [state, formAction, isPending] = useActionState(
+    createInvoiceWithUserId(id), //pass id here
+    initialState
+  );
+  if (!isPending) {
+    console.log("state", state);
+  }
   return (
     <form action={formAction}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
@@ -137,7 +149,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
         >
           Cancel
         </Link>
-        <Button type="submit">Create Invoice</Button>
+        <Button type="submit">{isPending ? "Creating.." : "Create"}</Button>
       </div>
     </form>
   );
